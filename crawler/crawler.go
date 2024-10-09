@@ -5,10 +5,12 @@ import (
 	"time"
 )
 
+const MaxThread = 20
+
 var client *req.Client
 
 func init() {
-	client = req.NewClient().SetTimeout(15 * time.Second).SetCommonRetryCount(3).
+	client = req.NewClient().SetTimeout(15 * time.Second).SetCommonRetryCount(5).
 		SetCommonRetryCondition(func(resp *req.Response, err error) bool {
 			return err != nil || resp.IsErrorState()
 		})

@@ -8,10 +8,9 @@ import (
 	"strings"
 )
 
-func GetPapers(slugs []string, startYear int) {
-
-}
 func GetPapersByConferenceInstance(ins ConferenceInstance) ([]Paper, error) {
+	slog.Info("Requesting papers of conference instance",
+		"slug", ins.Slug, "year", ins.Year, "url", ins.TocLink)
 	resp, err := client.R().Get(ins.TocLink)
 	if err != nil {
 		return nil, err
@@ -49,7 +48,9 @@ func GetPapersByConferenceInstance(ins ConferenceInstance) ([]Paper, error) {
 	return papers, nil
 }
 func GetConferenceInstancesBySlug(slug string) ([]ConferenceInstance, error) {
-	resp, err := client.R().Get("https://dblp.org/db/conf/" + slug)
+	url := "https://dblp.org/db/conf/" + slug
+	slog.Info("Requesting conference", "url", url)
+	resp, err := client.R().Get(url)
 	if err != nil {
 		return nil, err
 	}
