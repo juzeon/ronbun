@@ -4,6 +4,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/samber/lo"
 	"log/slog"
+	"ronbun/util"
 	"strconv"
 	"strings"
 )
@@ -60,27 +61,35 @@ func GetConferenceInstancesBySlug(slug string) ([]ConferenceInstance, error) {
 	}
 	var conferenceInstances []ConferenceInstance
 	doc.Find("ul.publ-list").Each(func(i int, pubList *goquery.Selection) {
-		ins := pubList.Find("li cite").First()
-		title := strings.TrimSuffix(ins.Find("span.title[itemprop=name]").Text(), ".")
-		if title == "" {
-			slog.Warn("Title of conference instance is empty", "ins", lo.Must(ins.Html()))
-			return
-		}
-		year, err := strconv.Atoi(ins.Find("span[itemprop=datePublished]").Text())
-		if err != nil {
-			slog.Warn("Error parsing datePublished", "ins", lo.Must(ins.Html()))
-			return
-		}
-		tocLink := ins.Find("a.toc-link").AttrOr("href", "")
-		if tocLink == "" {
-			slog.Warn("TocLink of conference instance is empty", "url", url, "ins", lo.Must(ins.Html()))
-			return
-		}
-		conferenceInstances = append(conferenceInstances, ConferenceInstance{
-			Slug:    slug,
-			Title:   title,
-			Year:    year,
-			TocLink: tocLink,
+		pubList.Find("li cite").Each(func(i int, ins *goquery.Selection) {
+			title := strings.TrimSuffix(ins.Find("span.title[itemprop=name]").Text(), ".")
+			if title == "" {
+				slog.Warn("Title of conference instance is empty", "ins", lo.Must(ins.Html()))
+				return
+			}
+			year, err := strconv.Atoi(ins.Find("span[itemprop=datePublished]").Text())
+			if err != nil {
+				slog.Warn("Error parsing datePublished", "ins", lo.Must(ins.Html()))
+				return
+			}
+			tocLink := ins.Find("a.toc-link").AttrOr("href", "")
+			if tocLink == "" {
+				slog.Warn("TocLink of conference instance is empty", "url", url, "ins", lo.Must(ins.Html()))
+				return
+			}
+			tocLinkSplit := strings.Split(tocLink, "/")
+			tocLinkSlug := util.NormalizeConferenceSlug(
+				strings.TrimSuffix(tocLinkSplit[len(tocLinkSplit)-1], ".html"))
+			if tocLinkSlug != slug {
+				//slog.Info("Skip conference instance: "+tocLink, "tocLinkSlug", tocLinkSlug, "slug", slug)
+				return
+			}
+			conferenceInstances = append(conferenceInstances, ConferenceInstance{
+				Slug:    slug,
+				Title:   title,
+				Year:    year,
+				TocLink: tocLink,
+			})
 		})
 	})
 	return conferenceInstances, nil

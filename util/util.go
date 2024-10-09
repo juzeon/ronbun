@@ -4,6 +4,7 @@ import (
 	"github.com/samber/lo"
 	"log/slog"
 	"os/exec"
+	"regexp"
 	"runtime"
 	"strconv"
 	"strings"
@@ -41,4 +42,7 @@ func OpenFileWithDefaultProgram(filePath string) {
 }
 func FormatShortYear(year int) string {
 	return strings.TrimPrefix(strconv.Itoa(year), "20")
+}
+func NormalizeConferenceSlug(slug string) string {
+	return regexp.MustCompile(`[\d\-_]`).ReplaceAllString(slug, "")
 }
