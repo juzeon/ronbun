@@ -4,6 +4,7 @@ go 1.23.1
 
 require (
 	github.com/PuerkitoBio/goquery v1.10.0
+	github.com/flytam/filenamify v1.2.0
 	github.com/glebarez/sqlite v1.11.0
 	github.com/imroc/req/v3 v3.46.1
 	github.com/ncruces/zenity v0.10.14

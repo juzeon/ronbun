@@ -64,3 +64,16 @@ func PromptInputStartYear() int {
 	db.SetSettingObj("last_conference_start_year", year)
 	return year
 }
+func PromptInputSearchKeyword() string {
+	lastSearchKeyword := db.GetSetting("last_search_keyword")
+	keyword := Attempt(func() (string, error) {
+		text, err := zenity.Entry("Input a search keyword:",
+			zenity.EntryText(lastSearchKeyword))
+		if err != nil {
+			return "", err
+		}
+		return text, nil
+	})
+	db.SetSetting("last_search_keyword", keyword)
+	return keyword
+}
