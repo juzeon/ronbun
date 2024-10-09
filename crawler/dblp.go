@@ -48,7 +48,7 @@ func GetPapersByConferenceInstance(ins ConferenceInstance) ([]Paper, error) {
 	return papers, nil
 }
 func GetConferenceInstancesBySlug(slug string) ([]ConferenceInstance, error) {
-	url := "https://dblp.org/db/conf/" + slug
+	url := "https://" + getLoadBalancedDBLPDomain() + "/db/conf/" + slug
 	slog.Info("Requesting conference", "url", url)
 	resp, err := client.R().Get(url)
 	if err != nil {
@@ -73,7 +73,7 @@ func GetConferenceInstancesBySlug(slug string) ([]ConferenceInstance, error) {
 		}
 		tocLink := ins.Find("a.toc-link").AttrOr("href", "")
 		if tocLink == "" {
-			slog.Warn("TocLink of conference instance is empty", "ins", lo.Must(ins.Html()))
+			slog.Warn("TocLink of conference instance is empty", "url", url, "ins", lo.Must(ins.Html()))
 			return
 		}
 		conferenceInstances = append(conferenceInstances, ConferenceInstance{
@@ -84,4 +84,24 @@ func GetConferenceInstancesBySlug(slug string) ([]ConferenceInstance, error) {
 		})
 	})
 	return conferenceInstances, nil
+}
+
+var dblpDomainChan = make(chan string)
+var dblpDomains = []string{"dblp.org", "dblp.uni-trier.de", "dblp2.uni-trier.de", "dblp.dagstuhl.de"}
+
+func yieldingDBLPDomain() {
+	i := 0
+	for {
+		dblpDomainChan <- dblpDomains[i%len(dblpDomains)]
+		i++
+	}
+}
+func getLoadBalancedDBLPDomain() string {
+	return <-dblpDomainChan
+}
+func NormalizeDBLPLink(link string) string {
+	for _, domain := range dblpDomains {
+		link = strings.TrimPrefix(link, "https://"+domain)
+	}
+	return "https://dblp.org" + link
 }

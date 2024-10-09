@@ -60,15 +60,18 @@ func getPapersFromDBLP(slugs []string, startYear int) {
 					})
 					slog.Info("Collected deduplicate papers",
 						"count", len(papers), "slug", slug, "year", ins.Year)
-					db.PaperTx.MustCreateMany(lo.Map(papers, func(paper crawler.Paper, index int) db.Paper {
+					arr := lo.Map(papers, func(paper crawler.Paper, index int) db.Paper {
 						return db.Paper{
 							Title:      paper.Title,
 							Conference: paper.ConferenceInstance.Slug,
 							Year:       paper.ConferenceInstance.Year,
-							DBLPLink:   paper.DBLPLink,
+							DBLPLink:   crawler.NormalizeDBLPLink(paper.DBLPLink),
 							DOILink:    paper.DOILink,
 						}
-					}))
+					})
+					if len(arr) != 0 {
+						db.PaperTx.MustCreateMany(arr)
+					}
 				}
 			}
 			wg.Done()
