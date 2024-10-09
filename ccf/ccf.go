@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"ronbun/storage"
+	"slices"
 	"strings"
 )
 
@@ -35,5 +36,15 @@ func GetConferencesBySub(sub string) []Conference {
 	}
 	var conferences []Conference
 	lo.Must0(yaml.Unmarshal(str.Bytes(), &conferences))
+	return conferences
+}
+func GetConferencesBySubRanking(subs []ConferenceSub, rankings []string) []Conference {
+	var conferences []Conference
+	for _, sub := range subs {
+		conferences = append(conferences, GetConferencesBySub(sub.Sub)...)
+	}
+	conferences = lo.Filter(conferences, func(c Conference, index int) bool {
+		return slices.Contains(rankings, c.Rank.CCF)
+	})
 	return conferences
 }

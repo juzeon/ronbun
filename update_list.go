@@ -7,7 +7,6 @@ import (
 	"ronbun/crawler"
 	"ronbun/db"
 	"ronbun/util"
-	"slices"
 	"sync"
 )
 
@@ -15,13 +14,7 @@ func UpdateList() {
 	conferenceSubs := util.PromptSelectConferenceSubs()
 	conferenceRankings := util.PromptSelectConferenceRankings()
 	startYear := util.PromptInputStartYear()
-	var conferences []ccf.Conference
-	for _, sub := range conferenceSubs {
-		conferences = append(conferences, ccf.GetConferencesBySub(sub.Sub)...)
-	}
-	conferences = lo.Filter(conferences, func(c ccf.Conference, index int) bool {
-		return slices.Contains(conferenceRankings, c.Rank.CCF)
-	})
+	conferences := ccf.GetConferencesBySubRanking(conferenceSubs, conferenceRankings)
 	getPapersFromDBLP(lo.Map(conferences, func(conference ccf.Conference, index int) string {
 		return conference.DBLP
 	}), startYear)
