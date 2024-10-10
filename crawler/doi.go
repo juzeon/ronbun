@@ -10,25 +10,17 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
-	"net/url"
 	"regexp"
 	"strings"
 )
 
 func GetAbstract(doiLink string) (sourceHost string, abstract string, err error) {
 	slog.Info("Requesting paper", "doi", doiLink)
-	doiURL := lo.Must(url.Parse(doiLink))
-	if doiURL.Hostname() == "dl.acm.org" {
-		return "dl.acm.org", "", nil // TODO
-	}
 	var lastReq *http.Request
 	client := clientPool.Get().(*req.Client)
 	defer clientPool.Put(client)
 	client.SetRedirectPolicy(func(req *http.Request, via []*http.Request) error {
 		lastReq = req
-		if req.URL.Hostname() == "dl.acm.org" {
-			return http.ErrUseLastResponse
-		}
 		return nil
 	})
 	resp, err := client.R().Get(doiLink)
@@ -39,13 +31,11 @@ func GetAbstract(doiLink string) (sourceHost string, abstract string, err error)
 		lastReq = resp.Request.RawRequest
 	}
 	sourceHost = lastReq.URL.Hostname()
-	if sourceHost == "dl.acm.org" {
-		return
-	}
 	abstract, err = parseAbstract(sourceHost, resp.Body)
 	if err != nil {
 		return "", "", err
 	}
+	slog.Info("Successfully collected paper", "doi", doiLink)
 	return sourceHost, abstract, nil
 }
 
@@ -70,6 +60,8 @@ func getAbstractProvider(sourceHost string) (AbstractProvider, error) {
 		return SpringerProvider{}, nil
 	case "www.usenix.org":
 		return USENIXProvider{}, nil
+	case "dl.acm.org":
+		return ACMProvider{}, nil
 	default:
 		return nil, errors.New("cannot find provider for " + sourceHost)
 	}
@@ -143,4 +135,15 @@ func (U USENIXProvider) ParseAbstract(reader io.Reader) (string, error) {
 		return "", errors.New("usenix abstract is empty")
 	}
 	return abstract, nil
+}
+
+type ACMProvider struct {
+}
+
+func (A ACMProvider) ParseAbstract(reader io.Reader) (string, error) {
+	doc, err := goquery.NewDocumentFromReader(reader)
+	if err != nil {
+		return "", err
+	}
+	return doc.Find("div#abstracts div[role=paragraph]").Text(), nil
 }

@@ -18,8 +18,7 @@ func UpdatePaper() {
 	for range crawler.MaxThread {
 		go func() {
 			for paper := range paperChan {
-				if (paper.SourceHost == "" || paper.Abstract == "") &&
-					paper.SourceHost != "dl.acm.org" { // TODO
+				if paper.SourceHost == "" || paper.Abstract == "" {
 					sourceHost, abstract, err := crawler.GetAbstract(paper.DOILink)
 					if err != nil {
 						slog.Error("Error getting abstract", "paper", paper, "err", err)
