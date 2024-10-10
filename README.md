@@ -98,6 +98,10 @@ dl.acm.org频率限制比较严格，用Tor代理IP池可以秒杀。但ieeexplo
 
 根据标题搜索论文，可以选择过滤会议分类、CCF等级等。
 
+[结果示例](https://public.ptree.top/ShareX/manual/Search%20for%20serverless.html)
+
 ### search-vec - 语义搜索
 
 文档搜文档，基于数据库里的论文摘要。将输入文档的向量和数据库里的向量匹配，取前20个最近似的论文。
+
+[结果示例](https://public.ptree.top/ShareX/manual/Search%20by%20document%202024-10-10%2019%2129%2158.html)
