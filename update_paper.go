@@ -8,8 +8,9 @@ import (
 )
 
 func UpdatePaper() {
-	papers := db.PaperTx.MustFindMany("source_host=? or abstract=? "+
-		"or embedding=? or embedding=?", "", "", "[]", "")
+	//papers := db.PaperTx.MustFindMany("source_host=? or abstract=? "+
+	//	"or embedding=?", "", "", "")
+	papers := db.PaperTx.Order("title asc").MustFindMany("source_host=?", "")
 	slog.Info("Paper waiting to update", "count", len(papers))
 	wg := &sync.WaitGroup{}
 	paperChan := make(chan *db.Paper)

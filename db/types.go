@@ -15,5 +15,5 @@ type Paper struct {
 	DOILink    string    `gorm:"column:doi_link;not null;uniqueIndex"`
 	SourceHost string    `gorm:"not null;default:''"`
 	Abstract   string    `gorm:"not null;default:''"`
-	Embedding  []float64 `gorm:"not null;serializer:json;default:[]"`
+	Embedding  []float64 `gorm:"not null;serializer:json;default:''"`
 }
