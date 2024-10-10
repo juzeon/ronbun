@@ -73,10 +73,10 @@ dblp只有会议、年份、论文标题、链接等等信息，所以等下我�
 
 目前实现的doi源站：
 
-- dl.acm.org：有请求频率限制
-- ieeexplore.ieee.org：基本没有请求频率限制
-- link.springer.com：无请求频率限制
-- www.usenix.org：无请求频率限制
+- `dl.acm.org`：有请求频率限制
+- `ieeexplore.ieee.org`：基本没有请求频率限制
+- `link.springer.com`：无请求频率限制
+- `www.usenix.org`：无请求频率限制
 
 有请求频率限制的可以自行配置代理IP池。推荐项目：
 
