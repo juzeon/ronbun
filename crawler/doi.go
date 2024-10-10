@@ -86,7 +86,7 @@ func (I IEEEProvider) ParseAbstract(reader io.Reader) (string, error) {
 	res := gjson.Parse(arr[1])
 	abstract := res.Get("abstract").String()
 	if abstract == "" {
-		slog.Error("IEEE Abstract is empty", "html", html)
+		slog.Error("IEEE Abstract is empty")
 		return "", errors.New("ieee abstract is empty")
 	}
 	return abstract, nil
@@ -106,7 +106,7 @@ func (s SpringerProvider) ParseAbstract(reader io.Reader) (string, error) {
 	res := gjson.Parse(arr[1])
 	abstract := res.Get("description").String()
 	if abstract == "" {
-		slog.Error("Springer Abstract is empty", "html", html)
+		slog.Error("Springer Abstract is empty")
 		return "", errors.New("springer abstract is empty")
 	}
 	return abstract, nil
@@ -131,7 +131,7 @@ func (U USENIXProvider) ParseAbstract(reader io.Reader) (string, error) {
 		abstract = field.Find("div.field-items").Text()
 	})
 	if abstract == "" {
-		slog.Error("USENIX Abstract is empty", "html", lo.Must(doc.Html()))
+		slog.Error("USENIX Abstract is empty")
 		return "", errors.New("usenix abstract is empty")
 	}
 	return abstract, nil
@@ -145,5 +145,10 @@ func (A ACMProvider) ParseAbstract(reader io.Reader) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return doc.Find("div#abstracts div[role=paragraph]").Text(), nil
+	text := doc.Find("div#abstracts div[role=paragraph]").Text()
+	if text == "" {
+		slog.Error("ACM Abstract is empty")
+		return "", errors.New("acm abstract is empty")
+	}
+	return text, nil
 }

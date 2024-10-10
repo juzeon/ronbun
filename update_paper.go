@@ -4,10 +4,12 @@ import (
 	"log/slog"
 	"ronbun/crawler"
 	"ronbun/db"
+	"ronbun/util"
 	"sync"
 )
 
 func UpdatePaper() {
+	util.PromptConfirmation("Please confirm you have set up a proxy pool for crawling abstracts.")
 	papers := db.PaperTx.Order("title asc").MustFindMany("source_host=? or abstract=? "+
 		"or embedding=?", "", "", "")
 	//papers := db.PaperTx.Order("title asc").MustFindMany("source_host=?", "")
@@ -21,7 +23,7 @@ func UpdatePaper() {
 				if paper.SourceHost == "" || paper.Abstract == "" {
 					sourceHost, abstract, err := crawler.GetAbstract(paper.DOILink)
 					if err != nil {
-						slog.Error("Error getting abstract", "paper", paper, "err", err)
+						slog.Error("Error getting abstract", "doi", paper.DOILink, "err", err)
 						continue
 					}
 					paper.SourceHost = sourceHost

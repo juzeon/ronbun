@@ -77,3 +77,11 @@ func PromptInputSearchKeyword() string {
 	db.SetSetting("last_search_keyword", keyword)
 	return keyword
 }
+func PromptConfirmation(text string) {
+	Attempt(func() (string, error) {
+		if err := zenity.Question(text); err != nil {
+			return "", err
+		}
+		return "", nil
+	})
+}
