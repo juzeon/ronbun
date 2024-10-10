@@ -40,15 +40,15 @@ func getPapersFromDBLP(slugs []string, startYear int) {
 						slog.Error("Failed to get papers", "slug", slug, "year", ins.Year, "err", err)
 						continue
 					}
-					duplicatePapers := db.PaperTx.MustFindMany("doi_link in ?",
+					duplicatePapers := db.PaperTx.MustFindMany("dblp_link in ?",
 						lo.Map(papers, func(paper crawler.Paper, index int) string {
-							return paper.DOILink
+							return paper.DBLPLink
 						}))
-					duplicateDOILinkMap := lo.SliceToMap(duplicatePapers, func(paper db.Paper) (string, struct{}) {
-						return paper.DOILink, struct{}{}
+					duplicateDBLPLinkMap := lo.SliceToMap(duplicatePapers, func(paper db.Paper) (string, struct{}) {
+						return paper.DBLPLink, struct{}{}
 					})
 					papers = lo.Filter(papers, func(paper crawler.Paper, index int) bool {
-						_, exist := duplicateDOILinkMap[paper.DOILink]
+						_, exist := duplicateDBLPLinkMap[paper.DBLPLink]
 						return !exist
 					})
 					slog.Info("Collected deduplicate papers",
@@ -58,7 +58,7 @@ func getPapersFromDBLP(slugs []string, startYear int) {
 							Title:      paper.Title,
 							Conference: paper.ConferenceInstance.Slug,
 							Year:       paper.ConferenceInstance.Year,
-							DBLPLink:   crawler.NormalizeDBLPLink(paper.DBLPLink),
+							DBLPLink:   paper.DBLPLink,
 							DOILink:    paper.DOILink,
 						}
 					})

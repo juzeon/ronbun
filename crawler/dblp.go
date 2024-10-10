@@ -41,7 +41,7 @@ func GetPapersByConferenceInstance(ins ConferenceInstance) ([]Paper, error) {
 		}
 		papers = append(papers, Paper{
 			Title:              title,
-			DBLPLink:           dblpLink,
+			DBLPLink:           NormalizeDBLPLink(dblpLink),
 			DOILink:            doiLink,
 			ConferenceInstance: ins,
 		})
