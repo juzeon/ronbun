@@ -8,10 +8,12 @@ type Setting struct {
 
 type Paper struct {
 	ID         int
-	Title      string `gorm:"not null"`
-	Conference string `gorm:"not null"`
-	Year       int    `gorm:"not null"`
-	DBLPLink   string `gorm:"column:dblp_link;not null"`
-	DOILink    string `gorm:"column:doi_link;not null;uniqueIndex"`
-	SourceHost string `gorm:"not null"`
+	Title      string    `gorm:"not null"`
+	Conference string    `gorm:"not null"`
+	Year       int       `gorm:"not null"`
+	DBLPLink   string    `gorm:"column:dblp_link;not null"`
+	DOILink    string    `gorm:"column:doi_link;not null;uniqueIndex"`
+	SourceHost string    `gorm:"not null;default:''"`
+	Abstract   string    `gorm:"not null;default:''"`
+	Embedding  []float64 `gorm:"not null;serializer:json;default:[]"`
 }
