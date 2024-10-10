@@ -25,5 +25,6 @@ func main() {
 func PrintHelp() {
 	fmt.Println("Usage:\n" +
 		"- update-list: Update the paper list from selected subs\n" +
+		"- update-paper: Update papers' abstracts, embeddings\n" +
 		"- search: Search papers by keywords")
 }

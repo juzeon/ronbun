@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Search result for `{{ .Keyword }}`</title>
+    <style>
+        body {
+            font-family: 'system-ui', 'SuperPingFangV1', 'Microsoft YaHei UI', serif;
+        }
+    </style>
+</head>
+<body>
+<div style="margin: 0 150px">
+    <h1>Search result for `{{ .Keyword }}`</h1>
+    {{ range .Papers }}
+    <div>
+        <div style="display: flex;flex-direction: row;align-content: center">
+            <h3>[{{ upper .Conference }} '{{ formatShortYear .Year }}] {{ .Title }}</h3>
+            <p style="white-space: nowrap">
+                &nbsp;&nbsp;<a href="{{ .DBLPLink }}">dblp</a>&nbsp;&nbsp;
+                <a href="{{ .DOILink }}">doi</a>
+            </p>
+        </div>
+        <details>
+            <summary>Abstract</summary>
+            <p>{{ .Abstract }}</p>
+        </details>
+    </div>
+    {{ end }}
+</div>
+</body>
+</html>

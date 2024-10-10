@@ -12,7 +12,6 @@ func UpdatePaper() {
 	util.PromptConfirmation("Please confirm you have set up a proxy pool for crawling abstracts.")
 	papers := db.PaperTx.Order("title asc").MustFindMany("source_host=? or abstract=? "+
 		"or embedding=?", "", "", "")
-	//papers := db.PaperTx.Order("title asc").MustFindMany("source_host=?", "")
 	slog.Info("Paper waiting to update", "count", len(papers))
 	wg := &sync.WaitGroup{}
 	paperChan := make(chan *db.Paper)

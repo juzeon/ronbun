@@ -2,13 +2,18 @@ package main
 
 import (
 	"bytes"
+	_ "embed"
 	"github.com/samber/lo"
+	"html/template"
 	"ronbun/ccf"
 	"ronbun/db"
 	"ronbun/storage"
 	"ronbun/util"
 	"strings"
 )
+
+//go:embed asset/search_result.html
+var searchResultTmpl string
 
 func Search() {
 	keyword := util.PromptInputSearchKeyword()
@@ -19,11 +24,18 @@ func Search() {
 		Where("conference in ?", lo.Map(conferences, func(c ccf.Conference, index int) string {
 			return c.DBLP
 		})).MustFindMany("title like ?", "%"+keyword+"%")
-	var out bytes.Buffer
-	out.WriteString("# Search for `" + keyword + "`\n\n")
-	for _, paper := range papers {
-		out.WriteString("\\[" + strings.ToUpper(paper.Conference) + " '" + util.FormatShortYear(paper.Year) + "] " +
-			paper.Title + " \\[[dblp](" + paper.DBLPLink + ")] \\[[doi](" + paper.DOILink + ")]\n\n")
+	tmpl := lo.Must(template.New("search_result").Funcs(map[string]any{
+		"upper":           strings.ToUpper,
+		"formatShortYear": util.FormatShortYear,
+	}).Parse(searchResultTmpl))
+	out := &bytes.Buffer{}
+	type TmplData struct {
+		Keyword string
+		Papers  []db.Paper
 	}
-	util.OpenFileWithDefaultProgram(storage.WriteTmpFile("Search for "+keyword+".md", out.Bytes()))
+	lo.Must0(tmpl.Execute(out, TmplData{
+		Keyword: keyword,
+		Papers:  papers,
+	}))
+	util.OpenFileWithDefaultProgram(storage.WriteTmpFile("Search for "+keyword+".html", out.Bytes()))
 }
