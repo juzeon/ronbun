@@ -14,10 +14,14 @@ func main() {
 	switch subCommand {
 	case "update-list":
 		UpdateList()
-	case "update-paper":
-		UpdatePaper()
+	case "update-abstract":
+		UpdateAbstract()
+	case "update-embedding":
+		UpdateEmbedding()
 	case "search":
 		Search()
+	case "search-vec":
+		SearchVec()
 	default:
 		PrintHelp()
 	}
@@ -25,6 +29,8 @@ func main() {
 func PrintHelp() {
 	fmt.Println("Usage:\n" +
 		"- update-list: Update the paper list from selected subs\n" +
-		"- update-paper: Update papers' abstracts, embeddings\n" +
-		"- search: Search papers by keywords")
+		"- update-abstract: Update papers' abstracts\n" +
+		"- update-embedding: Update papers' embeddings\n" +
+		"- search: Search papers by keywords\n" +
+		"- search-vec: Search papers by document")
 }

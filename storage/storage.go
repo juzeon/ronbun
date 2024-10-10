@@ -10,7 +10,8 @@ import (
 )
 
 type config struct {
-	CCFPath string `yaml:"ccf_path"`
+	CCFPath    string   `yaml:"ccf_path"`
+	JinaTokens []string `yaml:"jina_tokens"`
 }
 
 var Config config
@@ -34,6 +35,7 @@ func init() {
 	}
 	v := lo.Must(os.ReadFile(configPath))
 	lo.Must0(yaml.Unmarshal(v, &Config))
+	Config.JinaTokens = lo.Shuffle(Config.JinaTokens)
 }
 func WriteTmpFile(filename string, v []byte) string {
 	filename = lo.Must(filenamify.FilenamifyV2(filename))

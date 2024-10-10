@@ -15,6 +15,12 @@ import (
 //go:embed asset/search_result.html
 var searchResultTmpl string
 
+type SearchResultTmplData struct {
+	SearchDoc string
+	Keyword   string
+	Papers    []db.Paper
+}
+
 func Search() {
 	keyword := util.PromptInputSearchKeyword()
 	conferenceSubs := util.PromptSelectConferenceSubs()
@@ -29,11 +35,7 @@ func Search() {
 		"formatShortYear": util.FormatShortYear,
 	}).Parse(searchResultTmpl))
 	out := &bytes.Buffer{}
-	type TmplData struct {
-		Keyword string
-		Papers  []db.Paper
-	}
-	lo.Must0(tmpl.Execute(out, TmplData{
+	lo.Must0(tmpl.Execute(out, SearchResultTmplData{
 		Keyword: keyword,
 		Papers:  papers,
 	}))

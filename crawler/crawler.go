@@ -30,4 +30,5 @@ func init() {
 		return client.Clone()
 	}
 	go yieldingDBLPDomain()
+	go yieldingJinaToken()
 }

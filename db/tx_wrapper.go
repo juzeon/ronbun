@@ -116,6 +116,12 @@ func (t *TxWrapper[T]) Model(value any) *TxWrapper[T] {
 func (t *TxWrapper[T]) Order(value any) *TxWrapper[T] {
 	return NewTxWrapper[T](t.Tx.Order(value))
 }
+func (t *TxWrapper[T]) Limit(limit int) *TxWrapper[T] {
+	return NewTxWrapper[T](t.Tx.Limit(limit))
+}
+func (t *TxWrapper[T]) Offset(offset int) *TxWrapper[T] {
+	return NewTxWrapper[T](t.Tx.Offset(offset))
+}
 func (t *TxWrapper[T]) MustScan(dest any) {
 	var err error
 	if t.Tx.Statement.Model == nil {

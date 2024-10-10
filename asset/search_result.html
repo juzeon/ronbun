@@ -3,7 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Search result for `{{ .Keyword }}`</title>
+    <title>
+        {{ if .Keyword }}
+        Search result for `{{ .Keyword }}`
+        {{ else }}
+        Search by document
+        {{ end }}
+    </title>
     <style>
         body {
             font-family: 'system-ui', 'SuperPingFangV1', 'Microsoft YaHei UI', serif;
@@ -12,7 +18,17 @@
 </head>
 <body>
 <div style="margin: 0 150px">
-    <h1>Search result for `{{ .Keyword }}`</h1>
+    <h1>
+        {{ if .Keyword }}
+        Search result for `{{ .Keyword }}`
+        {{ else }}
+        Search by document
+        {{ end }}
+    </h1>
+    {{ if .SearchDoc }}
+    <h3>Searched by document:</h3>
+    <div>{{ .SearchDoc }}</div>
+    {{ end }}
     {{ range .Papers }}
     <div>
         <div style="display: flex;flex-direction: row;align-content: center">

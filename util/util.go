@@ -10,9 +10,9 @@ import (
 	"strings"
 )
 
-func Attempt[T any](fun func() (T, error)) T {
+func AttemptMax[T any](max int, fun func() (T, error)) T {
 	var obj T
-	_, err := lo.Attempt(10, func(index int) error {
+	_, err := lo.Attempt(max, func(index int) error {
 		t, err := fun()
 		if err != nil {
 			slog.Warn("Please retry", "err", err)
@@ -25,6 +25,9 @@ func Attempt[T any](fun func() (T, error)) T {
 		panic(err)
 	}
 	return obj
+}
+func Attempt[T any](fun func() (T, error)) T {
+	return AttemptMax(10, fun)
 }
 func OpenFileWithDefaultProgram(filePath string) {
 	var cmd *exec.Cmd
