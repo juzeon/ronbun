@@ -50,7 +50,7 @@ func Translate() {
 	}
 	if len(translation.TextData) == 0 {
 		grobidData := util.ParseGrobidXML(translation.GrobidData)
-		slog.Info("Translating...", "title", translation.Title)
+		slog.Info("Translating...", "title", grobidData.Title)
 		transSegArr := translateChinese(grobidData)
 		translation.TextData = lo.Map(transSegArr, func(transSeg TransSeg, index int) db.TranslationTextData {
 			return db.TranslationTextData{
