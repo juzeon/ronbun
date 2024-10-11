@@ -68,7 +68,7 @@ func Translate() {
 		return strings.TrimLeft(str, "# ")
 	}
 	getTitleContent := func(text string) (string, template.HTML) {
-		arr := strings.Split(text, "\n")
+		arr := strings.Split(text, "\n\n")
 		arr = lo.Map(arr, func(line string, index int) string {
 			return strings.TrimSpace(line)
 		})
