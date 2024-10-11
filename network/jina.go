@@ -4,13 +4,14 @@ import (
 	"github.com/samber/lo"
 	"log/slog"
 	"ronbun/storage"
+	"time"
 )
 
 func GetJinaEmbedding(documents []string) ([][]float64, error) {
 	var response JinaResponse
 	token := getJinaToken()
 	slog.Info("Firing jina request", "token", token)
-	_, err := client.Clone().SetTimeout(0).R().SetHeader("Authorization", "Bearer "+token).
+	_, err := client.Clone().SetTimeout(5*time.Minute).R().SetHeader("Authorization", "Bearer "+token).
 		SetSuccessResult(&response).SetBody(JinaRequest{
 		Model:         "jina-embeddings-v3",
 		Task:          "text-matching",

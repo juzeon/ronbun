@@ -3,10 +3,11 @@ package network
 import (
 	"ronbun/storage"
 	"strings"
+	"time"
 )
 
 func GetGrobidResult(pdfData []byte) (string, error) {
-	resp, err := client.Clone().SetTimeout(0).
+	resp, err := client.Clone().SetTimeout(5*time.Minute).
 		R().SetFileBytes("input", "a.pdf", pdfData).
 		Post(getGrobidEndpoint() + "/api/processFulltextDocument")
 	if err != nil {
