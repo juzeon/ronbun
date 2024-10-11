@@ -7,7 +7,7 @@
 - 按[ccf-deadlines](https://github.com/ccfddl/ccf-deadlines)论文分类：会议分类、CCF Rank
 - dblp 论文爬虫、论文摘要爬虫
 - 论文关键词搜索、基于向量的语义搜索
-- 论文全文翻译，双语对照，输出阅读器视图
+- 论文全文翻译，双语对照，输出阅读器视图，支持 LaTeX 公式渲染
 
 ## 编译
 
@@ -124,6 +124,6 @@ dl.acm.org 频率限制比较严格，用 Tor 代理 IP 池可以秒杀。但 ie
 
 ### translate - 全文翻译
 
-先调用 Grobid 从 PDF 中提取文本，再调用 OpenAI API 大模型全文翻译。输出双语对照的结果，特别按阅读器视图进行了优化。
+先调用 Grobid 从 PDF 中提取文本，再调用 OpenAI API 大模型全文翻译。输出双语对照的结果，特别按阅读器视图进行优化，并支持 LaTeX 公式渲染
 
 [结果示例](https://public.ptree.top/ShareX/manual/Translation%20for%20fast24-li.pdf.html)
