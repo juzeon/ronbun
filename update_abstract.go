@@ -4,6 +4,7 @@ import (
 	"log/slog"
 	"ronbun/crawler"
 	"ronbun/db"
+	"ronbun/storage"
 	"ronbun/util"
 	"sync"
 )
@@ -14,8 +15,8 @@ func UpdateAbstract() {
 	slog.Info("Paper waiting to update", "count", len(papers))
 	wg := &sync.WaitGroup{}
 	paperChan := make(chan *db.Paper)
-	wg.Add(crawler.MaxThread)
-	for range crawler.MaxThread {
+	wg.Add(storage.Config.Concurrency)
+	for range storage.Config.Concurrency {
 		go func() {
 			for paper := range paperChan {
 				if paper.SourceHost == "" || paper.Abstract == "" {

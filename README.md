@@ -53,6 +53,8 @@ jina_tokens: # 填入你的 jina token
   - jina_b480ecf26bb11111111111111111RqVNBhptko1BbEUbuJImbl
   - jina_726ceca975d322222222222222ZwvNZYc5cKL9luIIpHKPRgr
   - jina_1e1ff02f590f333333333333333387pl9aD0aN5cOeqyx
+concurrency: 20 # 多线程爬虫的并发度（线程数），比如20个线程
+search_limit: 20 # 向量搜索时显示的论文数量限制，比如显示前20个最相关的
 ```
 
 然后再运行工具查看帮助。

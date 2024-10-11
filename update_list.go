@@ -6,6 +6,7 @@ import (
 	"ronbun/ccf"
 	"ronbun/crawler"
 	"ronbun/db"
+	"ronbun/storage"
 	"ronbun/util"
 	"sync"
 )
@@ -22,8 +23,8 @@ func UpdateList() {
 func getPapersFromDBLP(slugs []string, startYear int) {
 	wg := &sync.WaitGroup{}
 	slugChan := make(chan string)
-	wg.Add(crawler.MaxThread)
-	for range crawler.MaxThread {
+	wg.Add(storage.Config.Concurrency)
+	for range storage.Config.Concurrency {
 		go func() {
 			for slug := range slugChan {
 				insArr, err := crawler.GetConferenceInstancesBySlug(slug)

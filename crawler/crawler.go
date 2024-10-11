@@ -3,11 +3,10 @@ package crawler
 import (
 	"errors"
 	"github.com/imroc/req/v3"
+	"ronbun/storage"
 	"sync"
 	"time"
 )
-
-const MaxThread = 20
 
 var client *req.Client
 var clientPool = &sync.Pool{}
@@ -23,7 +22,7 @@ func init() {
 		SetCommonRetryCondition(func(resp *req.Response, err error) bool {
 			return err != nil || resp.IsErrorState()
 		})
-	for range MaxThread {
+	for range storage.Config.Concurrency {
 		clientPool.Put(client.Clone())
 	}
 	clientPool.New = func() any {

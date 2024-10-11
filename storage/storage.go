@@ -10,8 +10,11 @@ import (
 )
 
 type config struct {
-	CCFPath    string   `yaml:"ccf_path"`
-	JinaTokens []string `yaml:"jina_tokens"`
+	CCFPath     string   `yaml:"ccf_path"`
+	JinaTokens  []string `yaml:"jina_tokens"`
+	Concurrency int      `yaml:"concurrency"`
+	SearchLimit int      `yaml:"search_limit"`
+	GrobidURLs  []string `yaml:"grobid_urls"`
 }
 
 var Config config

@@ -53,7 +53,7 @@ func SearchVec() {
 		return 0
 	})
 	slog.Info("Generating result...")
-	ceiling := int(math.Min(float64(20), float64(len(papersWithDistance))))
+	ceiling := int(math.Min(float64(storage.Config.SearchLimit), float64(len(papersWithDistance))))
 	papers = db.PaperTx.MustFindMany("id in ?",
 		lo.Map(papersWithDistance, func(paper PaperWithDistance, index int) int {
 			return paper.ID
