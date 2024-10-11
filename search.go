@@ -21,19 +21,21 @@ type SearchResultTmplData struct {
 	Papers    []db.Paper
 }
 
+var searchTmplFuncs = template.FuncMap(map[string]any{
+	"upper":           strings.ToUpper,
+	"formatShortYear": util.FormatShortYear,
+	"getRanking":      ccf.GetConferenceRankingBySlug,
+})
+
 func Search() {
 	keyword := util.PromptInputSearchKeyword()
-	conferenceSubs := util.PromptSelectConferenceSubs()
 	conferenceRankings := util.PromptSelectConferenceRankings()
-	conferences := ccf.GetConferencesBySubRanking(conferenceSubs, conferenceRankings)
+	conferences := ccf.GetConferencesBySubRanking(ccf.GetConferenceSubs(), conferenceRankings)
 	papers := db.PaperTx.Order("year desc,conference desc").
 		Where("conference in ?", lo.Map(conferences, func(c ccf.Conference, index int) string {
 			return c.DBLP
 		})).MustFindMany("title like ?", "%"+keyword+"%")
-	tmpl := lo.Must(template.New("search_result").Funcs(map[string]any{
-		"upper":           strings.ToUpper,
-		"formatShortYear": util.FormatShortYear,
-	}).Parse(searchResultTmpl))
+	tmpl := lo.Must(template.New("search_result").Funcs(searchTmplFuncs).Parse(searchResultTmpl))
 	out := &bytes.Buffer{}
 	lo.Must0(tmpl.Execute(out, SearchResultTmplData{
 		Keyword: keyword,

@@ -32,7 +32,8 @@
     {{ range .Papers }}
     <div>
         <div style="display: flex;flex-direction: row;align-content: center">
-            <h3>[{{ upper .Conference }} '{{ formatShortYear .Year }}] {{ .Title }}</h3>
+            <h3>[{{ upper .Conference }} '{{ formatShortYear .Year }}](CCF {{ getRanking .Conference }})
+                {{ .Title }}</h3>
             <p style="white-space: nowrap">
                 &nbsp;&nbsp;<a href="{{ .DBLPLink }}">dblp</a>&nbsp;&nbsp;
                 <a href="{{ .DOILink }}">doi</a>

@@ -9,6 +9,7 @@ import (
 	"ronbun/storage"
 	"slices"
 	"strings"
+	"sync"
 )
 
 type ConferenceSub struct {
@@ -47,4 +48,22 @@ func GetConferencesBySubRanking(subs []ConferenceSub, rankings []string) []Confe
 		return slices.Contains(rankings, c.Rank.CCF)
 	})
 	return conferences
+}
+
+var conferenceSlugMap = map[string]Conference{}
+var initConferenceSlugMapOnce = sync.OnceFunc(func() {
+	for _, sub := range GetConferenceSubs() {
+		for _, conference := range GetConferencesBySub(sub.Sub) {
+			conference := conference
+			conferenceSlugMap[conference.DBLP] = conference
+		}
+	}
+})
+
+func GetConferenceBySlug(slug string) Conference {
+	initConferenceSlugMapOnce()
+	return conferenceSlugMap[slug]
+}
+func GetConferenceRankingBySlug(slug string) string {
+	return GetConferenceBySlug(slug).Rank.CCF
 }
