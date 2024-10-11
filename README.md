@@ -1,12 +1,13 @@
 # ronbun
 
-计算机会议索引&论文助手，会议分类、论文爬虫、本地论文搜索工具箱。
+计算机会议索引&论文助手，会议分类、论文爬虫、本地论文搜索、论文全文翻译工具箱。
 
 ## 功能
 
 - 按[ccf-deadlines](https://github.com/ccfddl/ccf-deadlines)论文分类：会议分类、CCF Rank
 - dblp 论文爬虫、论文摘要爬虫
 - 论文关键词搜索、基于向量的语义搜索
+- 论文全文翻译，双语对照，输出阅读器视图
 
 ## 编译
 
@@ -55,6 +56,19 @@ jina_tokens: # 填入你的 jina token
   - jina_1e1ff02f590f333333333333333387pl9aD0aN5cOeqyx
 concurrency: 20 # 多线程爬虫的并发度（线程数），比如20个线程
 search_limit: 20 # 向量搜索时显示的论文数量限制，比如显示前20个最相关的
+grobid_urls: # Grobid服务的URL，用于全文翻译时识别PDF；以下网址来自https://github.com/binary-husky/gpt_academic，也可以自己搭建
+  - https://qingxu98-grobid.hf.space
+  - https://qingxu98-grobid2.hf.space
+  - https://qingxu98-grobid3.hf.space
+  - https://qingxu98-grobid4.hf.space
+  - https://qingxu98-grobid5.hf.space
+  - https://qingxu98-grobid6.hf.space
+  - https://qingxu98-grobid7.hf.space
+  - https://qingxu98-grobid8.hf.space
+openai: # OpenAI API的信息，用于全文翻译
+  endpoint: https://api.openai.com
+  model: gpt-4o-mini
+  key: sk-splvM85y111111111111111111aB1DdAf
 ```
 
 然后再运行工具查看帮助。
@@ -107,3 +121,9 @@ dl.acm.org 频率限制比较严格，用 Tor 代理 IP 池可以秒杀。但 ie
 文档搜文档，基于数据库里的论文摘要。将输入文档的向量和数据库里的向量匹配，取前 20 个最近似的论文。
 
 [结果示例](https://public.ptree.top/ShareX/manual/Search%20by%20document%202024-10-10%2019%2129%2158.html)
+
+### translate - 全文翻译
+
+先调用Grobid从PDF中提取文本，再调用OpenAI API大模型全文翻译。输出双语对照的结果，特别按阅读器视图进行了优化。
+
+[结果示例](https://public.ptree.top/ShareX/manual/Translation%20for%20fast24-li.pdf.html)
