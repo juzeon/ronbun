@@ -54,9 +54,9 @@ jina_tokens: # 填入你的 jina token
   - jina_b480ecf26bb11111111111111111RqVNBhptko1BbEUbuJImbl
   - jina_726ceca975d322222222222222ZwvNZYc5cKL9luIIpHKPRgr
   - jina_1e1ff02f590f333333333333333387pl9aD0aN5cOeqyx
-concurrency: 20 # 多线程爬虫的并发度（线程数），比如20个线程
-search_limit: 20 # 向量搜索时显示的论文数量限制，比如显示前20个最相关的
-grobid_urls: # Grobid服务的URL，用于全文翻译时识别PDF；以下网址来自https://github.com/binary-husky/gpt_academic，也可以自己搭建
+concurrency: 20 # 多线程爬虫的并发度（线程数），比如 20 个线程
+search_limit: 20 # 向量搜索时显示的论文数量限制，比如显示前 20 个最相关的
+grobid_urls: # Grobid 服务的 URL，用于全文翻译时识别 PDF；以下网址来自 https://github.com/binary-husky/gpt_academic，也可以自己搭建
   - https://qingxu98-grobid.hf.space
   - https://qingxu98-grobid2.hf.space
   - https://qingxu98-grobid3.hf.space
@@ -65,7 +65,7 @@ grobid_urls: # Grobid服务的URL，用于全文翻译时识别PDF；以下网�
   - https://qingxu98-grobid6.hf.space
   - https://qingxu98-grobid7.hf.space
   - https://qingxu98-grobid8.hf.space
-openai: # OpenAI API的信息，用于全文翻译
+openai: # OpenAI API 的信息，用于全文翻译
   endpoint: https://api.openai.com
   model: gpt-4o-mini
   key: sk-splvM85y111111111111111111aB1DdAf
@@ -124,6 +124,6 @@ dl.acm.org 频率限制比较严格，用 Tor 代理 IP 池可以秒杀。但 ie
 
 ### translate - 全文翻译
 
-先调用Grobid从PDF中提取文本，再调用OpenAI API大模型全文翻译。输出双语对照的结果，特别按阅读器视图进行了优化。
+先调用 Grobid 从 PDF 中提取文本，再调用 OpenAI API 大模型全文翻译。输出双语对照的结果，特别按阅读器视图进行了优化。
 
 [结果示例](https://public.ptree.top/ShareX/manual/Translation%20for%20fast24-li.pdf.html)
