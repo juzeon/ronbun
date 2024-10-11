@@ -3,8 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <title>{{ .Title }}</title>
+    <style>
+        body {
+            font-family: 'system-ui', 'SuperPingFangV1', 'Microsoft YaHei UI', serif;
+            background: #FBF6EF;
+            font-size: 25px;
+            line-height: 1.4;
+        }
+
+    </style>
 </head>
 <body>
-
+<div style="margin: 0 300px">
+    <div>
+        <h1>{{ .Title }}</h1>
+        <div>{{ .Abstract }}</div>
+    </div>
+    {{ range .Sections }}
+    <div style="margin-top: 20px">
+        <h3>{{ .Title }}</h3>
+        <div>{{ .Content }}</div>
+    </div>
+    {{ end }}
+</div>
 </body>
 </html>

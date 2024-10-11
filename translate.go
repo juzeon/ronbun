@@ -25,7 +25,7 @@ var translationFuncsMap = template.FuncMap(map[string]any{})
 type TranslationTmplData struct {
 	Title    string
 	Abstract string
-	Section  []TranslationTmplDataSection
+	Sections []TranslationTmplDataSection
 }
 type TranslationTmplDataSection struct {
 	Title   string
@@ -64,13 +64,16 @@ func Translate() {
 		arr = lo.Filter(arr, func(line string, index int) bool {
 			return line != ""
 		})
+		trimTitleLeft := func(str string) string {
+			return strings.TrimLeft(str, "# ")
+		}
 		if i == 0 {
-			tmplData.Title = arr[0]
+			tmplData.Title = trimTitleLeft(arr[0])
 			tmplData.Abstract = arr[1]
 			continue
 		}
-		tmplData.Section = append(tmplData.Section, TranslationTmplDataSection{
-			Title:   arr[0],
+		tmplData.Sections = append(tmplData.Sections, TranslationTmplDataSection{
+			Title:   trimTitleLeft(arr[0]),
 			Content: template.HTML("<p>" + strings.Join(arr[1:], "</p><p>") + "</p>"),
 		})
 	}
