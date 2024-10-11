@@ -94,7 +94,7 @@ func Translate() {
 		tmplData.Sections = append(tmplData.Sections, section)
 	}
 	lo.Must0(tmpl.Execute(out, tmplData))
-	p := storage.WriteTmpFile("Translation for "+translation.Title+".html", out.Bytes())
+	p := storage.WriteTmpFile("Translation for "+filepath.Base(pdfFile)+".html", out.Bytes())
 	savePath, err := zenity.SelectFileSave(
 		zenity.ConfirmOverwrite(),
 		zenity.Filename(filepath.Join(filepath.Dir(pdfFile), filepath.Base(p))),
