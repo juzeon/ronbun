@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"ronbun/storage"
 	"ronbun/util"
+	"strings"
 	"time"
 )
 
@@ -43,5 +44,9 @@ func GetOpenAITranslation(text string) string {
 		}
 		return r, nil
 	})
-	return resp.Choices[0].Message.Content
+	content := resp.Choices[0].Message.Content
+	content = strings.TrimSuffix(content, "```")
+	content = strings.TrimPrefix(content, "```markdown")
+	content = strings.TrimSpace(content)
+	return content
 }
