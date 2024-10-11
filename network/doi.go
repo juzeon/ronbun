@@ -1,16 +1,16 @@
-package crawler
+package network
 
 import (
 	"errors"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/imroc/req/v3"
-	"github.com/microcosm-cc/bluemonday"
 	"github.com/samber/lo"
 	"github.com/tidwall/gjson"
 	"io"
 	"log/slog"
 	"net/http"
 	"regexp"
+	"ronbun/util"
 	"strings"
 )
 
@@ -48,7 +48,7 @@ func parseAbstract(sourceHost string, reader io.Reader) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	abstract = stripTagsPolicy.Sanitize(abstract)
+	abstract = util.StripHTMLTags(abstract)
 	abstract = regexp.MustCompile(`(?m)\s+`).ReplaceAllString(abstract, " ")
 	return abstract, nil
 }
@@ -66,8 +66,6 @@ func getAbstractProvider(sourceHost string) (AbstractProvider, error) {
 		return nil, errors.New("cannot find provider for " + sourceHost)
 	}
 }
-
-var stripTagsPolicy = bluemonday.StripTagsPolicy()
 
 type AbstractProvider interface {
 	ParseAbstract(reader io.Reader) (string, error)

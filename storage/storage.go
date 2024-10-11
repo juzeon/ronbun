@@ -5,16 +5,23 @@ import (
 	"github.com/flytam/filenamify"
 	"github.com/samber/lo"
 	"gopkg.in/yaml.v3"
+	"net/url"
 	"os"
 	"path/filepath"
 )
 
 type config struct {
-	CCFPath     string   `yaml:"ccf_path"`
-	JinaTokens  []string `yaml:"jina_tokens"`
-	Concurrency int      `yaml:"concurrency"`
-	SearchLimit int      `yaml:"search_limit"`
-	GrobidURLs  []string `yaml:"grobid_urls"`
+	CCFPath     string       `yaml:"ccf_path"`
+	JinaTokens  []string     `yaml:"jina_tokens"`
+	Concurrency int          `yaml:"concurrency"`
+	SearchLimit int          `yaml:"search_limit"`
+	GrobidURLs  []string     `yaml:"grobid_urls"`
+	OpenAI      openaiConfig `yaml:"openai"`
+}
+type openaiConfig struct {
+	Endpoint string `yaml:"endpoint"`
+	Model    string `yaml:"model"`
+	Key      string `yaml:"key"`
 }
 
 var Config config
@@ -39,6 +46,8 @@ func init() {
 	v := lo.Must(os.ReadFile(configPath))
 	lo.Must0(yaml.Unmarshal(v, &Config))
 	Config.JinaTokens = lo.Shuffle(Config.JinaTokens)
+	Config.GrobidURLs = lo.Shuffle(Config.GrobidURLs)
+	Config.OpenAI.Endpoint = "https://" + lo.Must(url.Parse(Config.OpenAI.Endpoint)).Host + "/v1"
 }
 func WriteTmpFile(filename string, v []byte) string {
 	filename = lo.Must(filenamify.FilenamifyV2(filename))

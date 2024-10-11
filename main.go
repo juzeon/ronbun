@@ -22,6 +22,8 @@ func main() {
 		Search()
 	case "search-vec":
 		SearchVec()
+	case "translate":
+		Translate()
 	default:
 		PrintHelp()
 	}
@@ -32,5 +34,6 @@ func PrintHelp() {
 		"- update-abstract: Update papers' abstracts\n" +
 		"- update-embedding: Update papers' embeddings\n" +
 		"- search: Search papers by keywords\n" +
-		"- search-vec: Search papers by document")
+		"- search-vec: Search papers by document\n" +
+		"- translate: Translate a pdf document to Chinese")
 }

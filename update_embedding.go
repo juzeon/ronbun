@@ -4,8 +4,8 @@ import (
 	"github.com/samber/lo"
 	"log/slog"
 	"math"
-	"ronbun/crawler"
 	"ronbun/db"
+	"ronbun/network"
 	"ronbun/util"
 )
 
@@ -18,7 +18,7 @@ func UpdateEmbedding() {
 		slog.Info("Getting embeddings", "start", i, "end", ceiling)
 		batch := papers[i:ceiling]
 		res := util.AttemptMax(3, func() ([][]float64, error) {
-			r, err := crawler.GetJinaEmbedding(lo.Map(batch, func(paper db.Paper, index int) string {
+			r, err := network.GetJinaEmbedding(lo.Map(batch, func(paper db.Paper, index int) string {
 				return paper.Abstract
 			}))
 			if err != nil {

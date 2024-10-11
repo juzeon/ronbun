@@ -85,3 +85,12 @@ func PromptConfirmation(text string) {
 		return "", nil
 	})
 }
+func PromptOpenPDFFile() string {
+	return Attempt(func() (string, error) {
+		p, err := zenity.SelectFile(zenity.FileFilters{{"PDF files", []string{"*.pdf"}, true}})
+		if err != nil {
+			return "", err
+		}
+		return p, nil
+	})
+}

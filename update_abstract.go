@@ -2,8 +2,8 @@ package main
 
 import (
 	"log/slog"
-	"ronbun/crawler"
 	"ronbun/db"
+	"ronbun/network"
 	"ronbun/storage"
 	"ronbun/util"
 	"sync"
@@ -20,7 +20,7 @@ func UpdateAbstract() {
 		go func() {
 			for paper := range paperChan {
 				if paper.SourceHost == "" || paper.Abstract == "" {
-					sourceHost, abstract, err := crawler.GetAbstract(paper.DOILink)
+					sourceHost, abstract, err := network.GetAbstract(paper.DOILink)
 					if err != nil {
 						slog.Error("Error getting abstract", "doi", paper.DOILink, "err", err)
 						continue

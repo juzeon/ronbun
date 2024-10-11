@@ -17,3 +17,11 @@ type Paper struct {
 	Abstract   string    `gorm:"not null;default:''"`
 	Embedding  []float64 `gorm:"not null;serializer:json;default:''"`
 }
+
+type Translation struct {
+	ID          int
+	Hash        string   `gorm:"uniqueIndex;not null;default:''"`
+	Title       string   `gorm:"not null;default:''"`
+	GrobidData  string   `gorm:"not null;default:''"`
+	ChineseData []string `gorm:"not null;default:'';serializer:json"`
+}

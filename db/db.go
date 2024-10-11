@@ -10,6 +10,7 @@ import (
 var DB *gorm.DB
 var SettingTx *TxWrapper[Setting]
 var PaperTx *TxWrapper[Paper]
+var TranslationTx *TxWrapper[Translation]
 
 func init() {
 	db := lo.Must(gorm.Open(sqlite.Open(storage.DatabasePath), &gorm.Config{}))
@@ -20,4 +21,7 @@ func init() {
 
 	lo.Must0(db.AutoMigrate(&Paper{}))
 	PaperTx = NewTxWrapper[Paper](db)
+
+	lo.Must0(db.AutoMigrate(&Translation{}))
+	TranslationTx = NewTxWrapper[Translation](db)
 }

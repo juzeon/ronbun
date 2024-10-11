@@ -1,8 +1,9 @@
-package crawler
+package network
 
 import (
 	"errors"
 	"github.com/imroc/req/v3"
+	"github.com/sashabaranov/go-openai"
 	"ronbun/storage"
 	"sync"
 	"time"
@@ -10,6 +11,7 @@ import (
 
 var client *req.Client
 var clientPool = &sync.Pool{}
+var openaiClient *openai.Client
 
 func init() {
 	client = req.NewClient().ImpersonateChrome().
@@ -28,6 +30,10 @@ func init() {
 	clientPool.New = func() any {
 		return client.Clone()
 	}
+	openaiConfig := openai.DefaultConfig(storage.Config.OpenAI.Key)
+	openaiConfig.BaseURL = storage.Config.OpenAI.Endpoint
+	openaiClient = openai.NewClientWithConfig(openaiConfig)
 	go yieldingDBLPDomain()
 	go yieldingJinaToken()
+	go yieldingGrobidEndpoint()
 }

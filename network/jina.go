@@ -1,4 +1,4 @@
-package crawler
+package network
 
 import (
 	"github.com/samber/lo"

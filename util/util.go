@@ -1,6 +1,9 @@
 package util
 
 import (
+	"crypto/sha1"
+	"encoding/hex"
+	"github.com/microcosm-cc/bluemonday"
 	"github.com/samber/lo"
 	"log/slog"
 	"os/exec"
@@ -48,4 +51,15 @@ func FormatShortYear(year int) string {
 }
 func NormalizeConferenceSlug(slug string) string {
 	return regexp.MustCompile(`[\d\-_]`).ReplaceAllString(slug, "")
+}
+func Sha1(v []byte) string {
+	s := sha1.New()
+	s.Write(v)
+	return hex.EncodeToString(s.Sum(nil))
+}
+
+var stripTagsPolicy = bluemonday.StripTagsPolicy()
+
+func StripHTMLTags(html string) string {
+	return stripTagsPolicy.Sanitize(html)
 }

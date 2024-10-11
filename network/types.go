@@ -1,4 +1,4 @@
-package crawler
+package network
 
 type ConferenceInstance struct {
 	Slug    string

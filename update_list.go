@@ -4,8 +4,8 @@ import (
 	"github.com/samber/lo"
 	"log/slog"
 	"ronbun/ccf"
-	"ronbun/crawler"
 	"ronbun/db"
+	"ronbun/network"
 	"ronbun/storage"
 	"ronbun/util"
 	"sync"
@@ -27,34 +27,34 @@ func getPapersFromDBLP(slugs []string, startYear int) {
 	for range storage.Config.Concurrency {
 		go func() {
 			for slug := range slugChan {
-				insArr, err := crawler.GetConferenceInstancesBySlug(slug)
+				insArr, err := network.GetConferenceInstancesBySlug(slug)
 				if err != nil {
 					slog.Error("Failed to get conference instance", "slug", slug, "err", err)
 					continue
 				}
-				insArr = lo.Filter(insArr, func(ins crawler.ConferenceInstance, index int) bool {
+				insArr = lo.Filter(insArr, func(ins network.ConferenceInstance, index int) bool {
 					return ins.Year >= startYear
 				})
 				for _, ins := range insArr {
-					papers, err := crawler.GetPapersByConferenceInstance(ins)
+					papers, err := network.GetPapersByConferenceInstance(ins)
 					if err != nil {
 						slog.Error("Failed to get papers", "slug", slug, "year", ins.Year, "err", err)
 						continue
 					}
 					duplicatePapers := db.PaperTx.MustFindMany("dblp_link in ?",
-						lo.Map(papers, func(paper crawler.Paper, index int) string {
+						lo.Map(papers, func(paper network.Paper, index int) string {
 							return paper.DBLPLink
 						}))
 					duplicateDBLPLinkMap := lo.SliceToMap(duplicatePapers, func(paper db.Paper) (string, struct{}) {
 						return paper.DBLPLink, struct{}{}
 					})
-					papers = lo.Filter(papers, func(paper crawler.Paper, index int) bool {
+					papers = lo.Filter(papers, func(paper network.Paper, index int) bool {
 						_, exist := duplicateDBLPLinkMap[paper.DBLPLink]
 						return !exist
 					})
 					slog.Info("Collected deduplicate papers",
 						"count", len(papers), "slug", slug, "year", ins.Year)
-					arr := lo.Map(papers, func(paper crawler.Paper, index int) db.Paper {
+					arr := lo.Map(papers, func(paper network.Paper, index int) db.Paper {
 						return db.Paper{
 							Title:      paper.Title,
 							Conference: paper.ConferenceInstance.Slug,
