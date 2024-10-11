@@ -23,13 +23,14 @@ var translationTmpl string
 var translationFuncsMap = template.FuncMap(map[string]any{})
 
 type TranslationTmplData struct {
-	Title    string
-	Abstract string
+	Head     TranslationTmplDataSection
 	Sections []TranslationTmplDataSection
 }
 type TranslationTmplDataSection struct {
-	Title   string
-	Content template.HTML
+	ChineseTitle   string
+	EnglishTitle   string
+	ChineseContent template.HTML
+	EnglishContent template.HTML
 }
 
 func Translate() {
@@ -41,43 +42,56 @@ func Translate() {
 		slog.Info("Getting Grobid result...", "file", pdfFile)
 		grobidResult := lo.Must(network.GetGrobidResult(v))
 		translation = &db.Translation{
-			Hash:        hash,
-			GrobidData:  grobidResult,
-			ChineseData: nil,
+			Hash:       hash,
+			GrobidData: grobidResult,
+			TextData:   nil,
 		}
 		db.TranslationTx.MustCreate(translation)
 	}
-	if len(translation.ChineseData) == 0 {
+	if len(translation.TextData) == 0 {
 		grobidData := util.ParseGrobidXML(translation.GrobidData)
 		slog.Info("Translating...", "title", translation.Title)
-		chineseData := translateChinese(grobidData)
-		translation.ChineseData = chineseData
+		transSegArr := translateChinese(grobidData)
+		translation.TextData = lo.Map(transSegArr, func(transSeg TransSeg, index int) db.TranslationTextData {
+			return db.TranslationTextData{
+				Chinese: transSeg.Chinese,
+				English: transSeg.English,
+			}
+		})
 		translation.Title = grobidData.Title
 		db.TranslationTx.MustSave(translation)
 	}
 	tmpl := lo.Must(template.New("translation").Funcs(translationFuncsMap).Parse(translationTmpl))
 	out := &bytes.Buffer{}
 	var tmplData TranslationTmplData
-	for i, chinese := range translation.ChineseData {
-		arr := strings.Split(chinese, "\n")
+	trimTitleLeft := func(str string) string {
+		return strings.TrimLeft(str, "# ")
+	}
+	getTitleContent := func(text string) (string, template.HTML) {
+		arr := strings.Split(text, "\n")
 		arr = lo.Map(arr, func(line string, index int) string {
 			return strings.TrimSpace(line)
 		})
 		arr = lo.Filter(arr, func(line string, index int) bool {
 			return line != ""
 		})
-		trimTitleLeft := func(str string) string {
-			return strings.TrimLeft(str, "# ")
+		return trimTitleLeft(arr[0]),
+			template.HTML("<p>" + strings.Join(arr[1:], "</p><p>") + "</p>")
+	}
+	for i, textData := range translation.TextData {
+		eTitle, eContent := getTitleContent(textData.English)
+		cTitle, cContent := getTitleContent(textData.Chinese)
+		section := TranslationTmplDataSection{
+			ChineseTitle:   cTitle,
+			EnglishTitle:   eTitle,
+			ChineseContent: cContent,
+			EnglishContent: eContent,
 		}
 		if i == 0 {
-			tmplData.Title = trimTitleLeft(arr[0])
-			tmplData.Abstract = arr[1]
+			tmplData.Head = section
 			continue
 		}
-		tmplData.Sections = append(tmplData.Sections, TranslationTmplDataSection{
-			Title:   trimTitleLeft(arr[0]),
-			Content: template.HTML("<p>" + strings.Join(arr[1:], "</p><p>") + "</p>"),
-		})
+		tmplData.Sections = append(tmplData.Sections, section)
 	}
 	lo.Must0(tmpl.Execute(out, tmplData))
 	p := storage.WriteTmpFile("Translation for "+translation.Title+".html", out.Bytes())
@@ -93,12 +107,13 @@ func Translate() {
 	}
 }
 
-func translateChinese(data util.GrobidData) []string {
-	type TransSeg struct {
-		Index   int
-		English string
-		Chinese string
-	}
+type TransSeg struct {
+	Index   int
+	English string
+	Chinese string
+}
+
+func translateChinese(data util.GrobidData) []TransSeg {
 	var transSegArr []TransSeg
 	transSegArr = append(transSegArr, TransSeg{
 		Index:   0,
@@ -139,7 +154,5 @@ func translateChinese(data util.GrobidData) []string {
 	slices.SortFunc(resultTransSegArr, func(a, b TransSeg) int {
 		return a.Index - b.Index
 	})
-	return lo.Map(resultTransSegArr, func(seg TransSeg, index int) string {
-		return seg.Chinese
-	})
+	return resultTransSegArr
 }

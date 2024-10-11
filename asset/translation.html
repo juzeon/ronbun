@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>{{ .Title }}</title>
+    <title>{{ .Head.EnglishTitle }} - {{ .Head.ChineseTitle }}</title>
     <style>
         body {
             font-family: 'system-ui', 'SuperPingFangV1', 'Microsoft YaHei UI', serif;
@@ -10,19 +10,28 @@
             font-size: 25px;
             line-height: 1.4;
         }
-
     </style>
 </head>
 <body>
 <div style="margin: 0 300px">
     <div>
-        <h1>{{ .Title }}</h1>
-        <div>{{ .Abstract }}</div>
+        <h1>{{ .Head.ChineseTitle }}</h1>
+        <h2>- {{ .Head.EnglishTitle }}</h2>
+        <details>
+            <summary>English</summary>
+            <p>{{ .Head.EnglishContent }}</p>
+        </details>
+        <div>{{ .Head.ChineseContent }}</div>
     </div>
     {{ range .Sections }}
     <div style="margin-top: 20px">
-        <h3>{{ .Title }}</h3>
-        <div>{{ .Content }}</div>
+        <h3>{{ .ChineseTitle }}</h3>
+        <details>
+            <summary>English</summary>
+            <h3>{{ .EnglishTitle }}</h3>
+            <div>{{ .EnglishContent }}</div>
+        </details>
+        <div>{{ .ChineseContent }}</div>
     </div>
     {{ end }}
 </div>

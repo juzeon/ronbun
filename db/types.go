@@ -19,9 +19,13 @@ type Paper struct {
 }
 
 type Translation struct {
-	ID          int
-	Hash        string   `gorm:"uniqueIndex;not null;default:''"`
-	Title       string   `gorm:"not null;default:''"`
-	GrobidData  string   `gorm:"not null;default:''"`
-	ChineseData []string `gorm:"not null;default:'';serializer:json"`
+	ID         int
+	Hash       string                `gorm:"uniqueIndex;not null;default:''"`
+	Title      string                `gorm:"not null;default:''"`
+	GrobidData string                `gorm:"not null;default:''"`
+	TextData   []TranslationTextData `gorm:"not null;default:'';serializer:json"`
+}
+type TranslationTextData struct {
+	Chinese string `json:"chinese"`
+	English string `json:"english"`
 }
