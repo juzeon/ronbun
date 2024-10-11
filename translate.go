@@ -39,18 +39,20 @@ func Translate() {
 	translation := db.TranslationTx.MustFindOne("hash=?", hash)
 	if translation == nil {
 		slog.Info("Getting Grobid result...", "file", pdfFile)
-		tei := lo.Must(network.GetGrobidResult(v))
+		grobidResult := lo.Must(network.GetGrobidResult(v))
 		translation = &db.Translation{
 			Hash:        hash,
-			Title:       tei.Header.FileDesc.TitleStmt.Title.Value,
-			GrobidData:  tei.String(),
+			GrobidData:  grobidResult,
 			ChineseData: nil,
 		}
 		db.TranslationTx.MustCreate(translation)
 	}
 	if len(translation.ChineseData) == 0 {
-		chineseData := translateChinese(lo.Must(network.NewGrobidTEI(translation.GrobidData)))
+		grobidData := util.ParseGrobidXML(translation.GrobidData)
+		slog.Info("Translating...", "title", translation.Title)
+		chineseData := translateChinese(grobidData)
 		translation.ChineseData = chineseData
+		translation.Title = grobidData.Title
 		db.TranslationTx.MustSave(translation)
 	}
 	tmpl := lo.Must(template.New("translation").Funcs(translationFuncsMap).Parse(translationTmpl))
@@ -79,7 +81,10 @@ func Translate() {
 	}
 	lo.Must0(tmpl.Execute(out, tmplData))
 	p := storage.WriteTmpFile("Translation for "+translation.Title+".html", out.Bytes())
-	savePath, err := zenity.SelectFileSave(zenity.Filename(filepath.Base(p)), zenity.ConfirmOverwrite())
+	savePath, err := zenity.SelectFileSave(
+		zenity.ConfirmOverwrite(),
+		zenity.Filename(filepath.Join(filepath.Dir(pdfFile), filepath.Base(p))),
+	)
 	if err == nil {
 		lo.Must0(os.WriteFile(savePath, out.Bytes(), 0644))
 		util.OpenFileWithDefaultProgram(savePath)
@@ -88,30 +93,22 @@ func Translate() {
 	}
 }
 
-func translateChinese(tei network.GrobidTEI) []string {
+func translateChinese(data util.GrobidData) []string {
 	type TransSeg struct {
 		Index   int
 		English string
 		Chinese string
 	}
-	title := tei.Header.FileDesc.TitleStmt.Title.Value
-	abstract := strings.Join(lo.Map(tei.Header.ProfileDesc.Abstract.Div.Paragraphs, func(para network.Paragraph, index int) string {
-		return para.Content
-	}), "\n\n")
 	var transSegArr []TransSeg
 	transSegArr = append(transSegArr, TransSeg{
 		Index:   0,
-		English: "# " + title + "\n\n" + abstract,
+		English: "# " + data.Title + "\n\n" + data.Abstract,
 		Chinese: "",
 	})
-	for i, div := range tei.Text.Body.Divs {
-		content := strings.Join(lo.Map(div.Paragraphs, func(para network.Paragraph, index int) string {
-			return para.Content
-		}), "\n\n")
-		heading := div.Head.N + " " + div.Head.Value
+	for i, section := range data.Sections {
 		transSegArr = append(transSegArr, TransSeg{
 			Index:   i + 1,
-			English: heading + "\n\n" + content,
+			English: section.Title + "\n\n" + section.Content,
 			Chinese: "",
 		})
 	}

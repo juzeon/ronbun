@@ -22,7 +22,8 @@ func GetOpenAITranslation(text string) string {
 						"You will translate all the text user provided to Chinese. " +
 						"You use techniques like reordering sentences, use native words and phrases to make the translation " +
 						"feels natural to Chinese native speakers. " +
-						"Output in MarkDown. Do not write explanations and output the translation directly.",
+						"Output in MarkDown. Use LaTeX for formulas and wrap them with $. " +
+						"Do not write explanations and output the translation directly.",
 				},
 				{
 					Role:    "user",

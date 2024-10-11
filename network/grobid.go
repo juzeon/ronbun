@@ -5,19 +5,14 @@ import (
 	"strings"
 )
 
-func GetGrobidResult(pdfData []byte) (GrobidTEI, error) {
-	var empty GrobidTEI
+func GetGrobidResult(pdfData []byte) (string, error) {
 	resp, err := client.Clone().SetTimeout(0).
 		R().SetFileBytes("input", "a.pdf", pdfData).
 		Post(getGrobidEndpoint() + "/api/processFulltextDocument")
 	if err != nil {
-		return empty, err
+		return "", err
 	}
-	response, err := NewGrobidTEI(resp.String())
-	if err != nil {
-		return empty, err
-	}
-	return response, nil
+	return resp.String(), nil
 }
 
 var grobidEndpointChan = make(chan string)
