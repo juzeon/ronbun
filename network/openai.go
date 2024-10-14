@@ -1,8 +1,11 @@
 package network
 
 import (
+	"bytes"
 	"context"
+	"errors"
 	"github.com/sashabaranov/go-openai"
+	"io"
 	"log/slog"
 	"ronbun/storage"
 	"ronbun/util"
@@ -11,10 +14,10 @@ import (
 )
 
 func GetOpenAITranslation(text string) string {
-	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
-	defer cancel()
-	resp := util.AttemptMax(10, func() (openai.ChatCompletionResponse, error) {
-		r, err := openaiClient.CreateChatCompletion(ctx, openai.ChatCompletionRequest{
+	resp := util.AttemptMax(10, func() (string, error) {
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
+		defer cancel()
+		stream, err := openaiClient.CreateChatCompletionStream(ctx, openai.ChatCompletionRequest{
 			Model: storage.Config.OpenAI.Model,
 			Messages: []openai.ChatCompletionMessage{
 				{
@@ -32,20 +35,30 @@ func GetOpenAITranslation(text string) string {
 				},
 			},
 			Temperature: 0.4,
-			Stream:      false,
+			Stream:      true,
 		})
 		if err != nil {
-			slog.Warn("Failed to request to translate, retrying...", "text", text)
-			return openai.ChatCompletionResponse{}, err
+			slog.Warn("Create stream error", "err", err)
+			return "", err
 		}
-		if len(r.Choices) == 0 || r.Choices[0].Message.Content == "" {
-			slog.Warn("Choices empty, retrying...", "response", r, "text", text)
-			return openai.ChatCompletionResponse{}, err
+		defer stream.Close()
+		var out bytes.Buffer
+		for {
+			response, err := stream.Recv()
+			if errors.Is(err, io.EOF) {
+				return out.String(), nil
+			}
+			if err != nil {
+				slog.Error("Stream error", "err", err)
+				return "", err
+			}
+			if len(response.Choices) == 0 {
+				continue
+			}
+			out.WriteString(response.Choices[0].Delta.Content)
 		}
-		return r, nil
 	})
-	content := resp.Choices[0].Message.Content
-	content = strings.TrimSuffix(content, "```")
+	content := strings.TrimSuffix(resp, "```")
 	content = strings.TrimPrefix(content, "```markdown")
 	content = strings.TrimSpace(content)
 	return content
