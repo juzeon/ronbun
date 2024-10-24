@@ -4,6 +4,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/samber/lo"
 	"log/slog"
+	"regexp"
 	"ronbun/util"
 	"strconv"
 	"strings"
@@ -48,6 +49,9 @@ func GetPapersByConferenceInstance(ins ConferenceInstance) ([]Paper, error) {
 	})
 	return papers, nil
 }
+
+var reHeading = regexp.MustCompile(`\((.*?)\)`)
+
 func GetConferenceInstancesBySlug(slug string) ([]ConferenceInstance, error) {
 	url := "https://" + getLoadBalancedDBLPDomain() + "/db/conf/" + slug
 	slog.Info("Requesting conference", "url", url)
@@ -60,6 +64,12 @@ func GetConferenceInstancesBySlug(slug string) ([]ConferenceInstance, error) {
 		return nil, err
 	}
 	var conferenceInstances []ConferenceInstance
+	// e.g. Annual IEEE International System-on-Chip Conference (SoCC)
+	headingSeg := reHeading.FindAllStringSubmatch(doc.Find("#headline h1").Text(), -1)
+	slugAlternative := ""
+	if len(headingSeg) != 0 {
+		slugAlternative = strings.ToLower(headingSeg[len(headingSeg)-1][1]) // e.g. socc
+	}
 	doc.Find("ul.publ-list").Each(func(i int, pubList *goquery.Selection) {
 		pubList.Find("li cite").Each(func(i int, ins *goquery.Selection) {
 			title := strings.TrimSuffix(ins.Find("span.title[itemprop=name]").Text(), ".")
@@ -80,7 +90,7 @@ func GetConferenceInstancesBySlug(slug string) ([]ConferenceInstance, error) {
 			tocLinkSplit := strings.Split(tocLink, "/")
 			tocLinkSlug := util.NormalizeConferenceSlug(
 				strings.TrimSuffix(tocLinkSplit[len(tocLinkSplit)-1], ".html"))
-			if tocLinkSlug != slug {
+			if tocLinkSlug != slug && (tocLinkSlug != slugAlternative && slugAlternative != "") {
 				//slog.Info("Skip conference instance: "+tocLink, "tocLinkSlug", tocLinkSlug, "slug", slug)
 				return
 			}
@@ -92,6 +102,9 @@ func GetConferenceInstancesBySlug(slug string) ([]ConferenceInstance, error) {
 			})
 		})
 	})
+	if len(conferenceInstances) == 0 {
+		slog.Warn("Conference papers return empty slice. Please check", "url", url)
+	}
 	return conferenceInstances, nil
 }
 
