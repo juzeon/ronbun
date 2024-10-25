@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/imroc/req/v3"
 	"github.com/sashabaranov/go-openai"
+	"log/slog"
 	"ronbun/storage"
 	"sync"
 	"time"
@@ -20,9 +21,22 @@ func init() {
 				return errors.New("http status: " + resp.GetStatus() + " (response: " + resp.String() + ")")
 			}
 			return nil
-		}).SetTimeout(15 * time.Second).SetCommonRetryCount(5).
+		}).SetTimeout(15 * time.Second).SetCommonRetryCount(10).
 		SetCommonRetryCondition(func(resp *req.Response, err error) bool {
-			return err != nil || resp.IsErrorState()
+			if err != nil {
+				return true
+			}
+			if resp.GetStatusCode() == 404 {
+				return false
+			}
+			return resp.IsErrorState()
+		}).
+		AddCommonRetryHook(func(resp *req.Response, err error) {
+			url := ""
+			if resp.Request != nil {
+				url = resp.Request.RawURL
+			}
+			slog.Warn("Retry triggered", "url", url, "status", resp.GetStatusCode(), "err", err)
 		})
 	for range storage.Config.Concurrency {
 		clientPool.Put(client.Clone())
