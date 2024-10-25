@@ -15,7 +15,7 @@ func UpdateEmbedding() {
 	step := 100
 	for i := 0; i < len(papers); i += step {
 		ceiling := int(math.Min(float64(i+step), float64(len(papers))))
-		slog.Info("Getting embeddings", "start", i, "end", ceiling)
+		slog.Info("Getting embeddings", "start", i, "end", ceiling, "total", len(papers))
 		batch := papers[i:ceiling]
 		res := util.AttemptMax(3, func() ([][]float64, error) {
 			r, err := network.GetJinaEmbedding(lo.Map(batch, func(paper db.Paper, index int) string {
