@@ -13,7 +13,7 @@ func UpdateEmbedding() {
 	embeddingProvider := network.GetEmbeddingProviderByConfig()
 	papers := db.PaperTx.Order("title asc").MustFindMany("abstract!=? and embedding=?", "", "")
 	slog.Info("Papers to update", "count", len(papers))
-	step := 100
+	step := 50
 	for i := 0; i < len(papers); i += step {
 		ceiling := int(math.Min(float64(i+step), float64(len(papers))))
 		slog.Info("Getting embeddings", "start", i, "end", ceiling, "total", len(papers))
