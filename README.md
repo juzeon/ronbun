@@ -105,6 +105,15 @@ dblp 只有会议、年份、论文标题、链接等等信息，所以等下我
 - `ieeexplore.ieee.org`：基本没有请求频率限制
 - `link.springer.com`：无请求频率限制
 - `www.usenix.org`：无请求频率限制
+- `aclanthology.org`：无请求频率限制
+- `proceedings.mlr.press`：无请求频率限制
+- `ojs.aaai.org`：无请求频率限制
+- `www.ijcai.org`：无请求频率限制
+- `ebooks.iospress.nl`：无请求频率限制
+- `proceedings.neurips.cc`：无请求频率限制
+- `openaccess.thecvf.com`：无请求频率限制
+- `openreview.net`：严格的请求频率限制
+- `proceedings.kr.org`：无请求频率限制
 
 有请求频率限制的可以自行配置代理 IP 池。推荐项目：
 
