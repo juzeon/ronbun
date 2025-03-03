@@ -20,7 +20,7 @@ func UpdateEmbedding() {
 		batch := papers[i:ceiling]
 		res := util.AttemptMax(3, func() ([][]float64, error) {
 			r, err := embeddingProvider.GetEmbedding(lo.Map(batch, func(paper db.Paper, index int) string {
-				return paper.Abstract
+				return paper.Title + "\n" + paper.Abstract
 			}))
 			if err != nil {
 				return nil, err

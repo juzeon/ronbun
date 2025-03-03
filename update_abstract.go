@@ -6,6 +6,7 @@ import (
 	"ronbun/network"
 	"ronbun/storage"
 	"ronbun/util"
+	"strings"
 	"sync"
 )
 
@@ -20,6 +21,10 @@ func UpdateAbstract() {
 		go func() {
 			for paper := range paperChan {
 				if paper.SourceHost == "" || paper.Abstract == "" {
+					// FIXME debug
+					if strings.Contains(paper.DOILink, "openreview.net") {
+						continue
+					}
 					sourceHost, abstract, err := network.GetAbstract(paper.DOILink)
 					if err != nil {
 						slog.Error("Error getting abstract", "doi", paper.DOILink, "err", err)
