@@ -31,11 +31,21 @@ git clone https://github.com/ccfddl/ccf-deadlines.git
 
 记录下路径，假设这里是`D:\dev\ccf-deadlines`。
 
-在摘要 Text Embedding 和向量搜索时需要用到 jina 的 Embedding API，可以在这里申请：<https://jina.ai/embeddings/>
+在摘要 Text Embedding 和向量搜索时需要用到 Embedding API。选择一个 API Provider 即可。
+
+#### jina
+
+jina 的 Embedding API，可以在这里申请：<https://jina.ai/embeddings/>
 
 ![](https://public.ptree.top/ShareX/2024/10/10/1728558627/fstutMhIND.png)
 
 清除浏览数据和 Cookie 刷新后这个 API Key 会自动生成新的，可以无限获取，每个都有免费 1M Token 的额度。建议先申请 10 个。
+
+#### 硅基流动
+
+提供无限免费的 BAAI/bge-m3 等模型：
+
+<https://cloud.siliconflow.cn/models?types=embedding>
 
 ### 本体
 
@@ -50,6 +60,8 @@ git clone https://github.com/ccfddl/ccf-deadlines.git
 
 ```yaml
 ccf_path: "D:\\dev\\ccf-deadlines" # 改成 ccf-deadlines 的路径
+embedding_provider: siliconflow # jina 或 siliconflow
+siliconflow_token: # 填入你的 siliconflow token
 jina_tokens: # 填入你的 jina token
   - jina_b480ecf26bb11111111111111111RqVNBhptko1BbEUbuJImbl
   - jina_726ceca975d322222222222222ZwvNZYc5cKL9luIIpHKPRgr

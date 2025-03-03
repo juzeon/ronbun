@@ -48,6 +48,5 @@ func init() {
 	openaiConfig.BaseURL = storage.Config.OpenAI.Endpoint
 	openaiClient = openai.NewClientWithConfig(openaiConfig)
 	go yieldingDBLPDomain()
-	go yieldingJinaToken()
 	go yieldingGrobidEndpoint()
 }

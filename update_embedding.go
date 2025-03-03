@@ -6,10 +6,20 @@ import (
 	"math"
 	"ronbun/db"
 	"ronbun/network"
+	"ronbun/storage"
 	"ronbun/util"
 )
 
 func UpdateEmbedding() {
+	var embeddingProvider network.EmbeddingProvider
+	switch storage.Config.EmbeddingProvider {
+	case "siliconflow":
+		embeddingProvider = network.SiliconFlowEmbeddingProvider{}
+	case "jina":
+		embeddingProvider = network.JinaEmbeddingProvider{}
+	default:
+		panic("please specify a embedding provider")
+	}
 	papers := db.PaperTx.Order("title asc").MustFindMany("abstract!=? and embedding=?", "", "")
 	slog.Info("Papers to update", "count", len(papers))
 	step := 100
@@ -18,7 +28,7 @@ func UpdateEmbedding() {
 		slog.Info("Getting embeddings", "start", i, "end", ceiling, "total", len(papers))
 		batch := papers[i:ceiling]
 		res := util.AttemptMax(3, func() ([][]float64, error) {
-			r, err := network.GetJinaEmbedding(lo.Map(batch, func(paper db.Paper, index int) string {
+			r, err := embeddingProvider.GetEmbedding(lo.Map(batch, func(paper db.Paper, index int) string {
 				return paper.Abstract
 			}))
 			if err != nil {

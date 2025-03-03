@@ -11,12 +11,14 @@ import (
 )
 
 type config struct {
-	CCFPath     string       `yaml:"ccf_path"`
-	JinaTokens  []string     `yaml:"jina_tokens"`
-	Concurrency int          `yaml:"concurrency"`
-	SearchLimit int          `yaml:"search_limit"`
-	GrobidURLs  []string     `yaml:"grobid_urls"`
-	OpenAI      openaiConfig `yaml:"openai"`
+	CCFPath           string       `yaml:"ccf_path"`
+	EmbeddingProvider string       `yaml:"embedding_provider"`
+	JinaTokens        []string     `yaml:"jina_tokens"`
+	SiliconFlowToken  string       `yaml:"siliconflow_token"`
+	Concurrency       int          `yaml:"concurrency"`
+	SearchLimit       int          `yaml:"search_limit"`
+	GrobidURLs        []string     `yaml:"grobid_urls"`
+	OpenAI            openaiConfig `yaml:"openai"`
 }
 type openaiConfig struct {
 	Endpoint string `yaml:"endpoint"`

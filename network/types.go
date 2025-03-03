@@ -36,3 +36,22 @@ type JinaData struct {
 	Index     int       `json:"index"`
 	Embedding []float64 `json:"embedding"`
 }
+type SiliconFlowRequest struct {
+	Model          string   `json:"model"`
+	Input          []string `json:"input"`
+	EncodingFormat string   `json:"encoding_format"`
+}
+type SiliconFlowResponse struct {
+	Model string            `json:"model"`
+	Data  []SiliconFlowData `json:"data"`
+	Usage struct {
+		PromptTokens     int `json:"prompt_tokens"`
+		CompletionTokens int `json:"completion_tokens"`
+		TotalTokens      int `json:"total_tokens"`
+	} `json:"usage"`
+}
+type SiliconFlowData struct {
+	Object    string    `json:"object"`
+	Embedding []float64 `json:"embedding"`
+	Index     int       `json:"index"`
+}
