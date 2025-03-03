@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/imroc/req/v3"
+	"github.com/microcosm-cc/bluemonday"
 	"github.com/samber/lo"
 	"github.com/tidwall/gjson"
 	"io"
@@ -61,7 +62,24 @@ func getAbstractProvider(sourceHost string) (AbstractProvider, error) {
 	case "www.usenix.org":
 		return USENIXProvider{}, nil
 	case "dl.acm.org":
-		return ACMProvider{}, nil
+		return ConfigurableAbstractProvider{Selector: "div#abstracts div[role=paragraph]"}, nil
+	case "aclanthology.org":
+		return ConfigurableAbstractProvider{Selector: ".acl-abstract span"}, nil
+	case "proceedings.mlr.press":
+		return ConfigurableAbstractProvider{Selector: "div#abstract"}, nil
+	case "ojs.aaai.org":
+		return ConfigurableAbstractProvider{Selector: "section.abstract"}, nil
+	case "www.ijcai.org":
+		return ConfigurableAbstractProvider{Selector: "div.col-md-12:first-of-type"}, nil
+	case "ebooks.iospress.nl":
+		return ConfigurableAbstractProvider{Selector: "div.abstract section"}, nil
+	case "proceedings.neurips.cc":
+		return ConfigurableAbstractProvider{
+			Regexp:      `(?m)<h4>Abstract</h4>([\s\S]*?)</div>`,
+			RegexpGroup: 1,
+		}, nil
+	case "openaccess.thecvf.com":
+		return ConfigurableAbstractProvider{Selector: "div#abstract"}, nil
 	default:
 		return nil, errors.New("cannot find provider for " + sourceHost)
 	}
@@ -70,6 +88,51 @@ func getAbstractProvider(sourceHost string) (AbstractProvider, error) {
 type AbstractProvider interface {
 	ParseAbstract(reader io.Reader) (string, error)
 }
+type ConfigurableAbstractProvider struct {
+	Regexp      string
+	RegexpGroup int
+
+	Selector string
+}
+
+func (o ConfigurableAbstractProvider) ParseAbstract(reader io.Reader) (string, error) {
+	if o.Selector != "" {
+		return o.parseBySelector(reader)
+	}
+	if o.Regexp != "" && o.RegexpGroup != 0 {
+		return o.parseByRegexp(reader)
+	}
+	return "", errors.New("misconfigured abstract provider")
+}
+func (o ConfigurableAbstractProvider) parseBySelector(reader io.Reader) (string, error) {
+	doc, err := goquery.NewDocumentFromReader(reader)
+	if err != nil {
+		return "", err
+	}
+	text := strings.TrimSpace(doc.Find(o.Selector).Text())
+	if text == "" {
+		slog.Error("Abstract is empty: " + o.Selector)
+		return "", errors.New("abstract is empty")
+	}
+	return text, nil
+}
+func (o ConfigurableAbstractProvider) parseByRegexp(reader io.Reader) (string, error) {
+	html, err := io.ReadAll(reader)
+	if err != nil {
+		return "", err
+	}
+	arr := regexp.MustCompile(o.Regexp).FindStringSubmatch(string(html))
+	if len(arr) <= o.RegexpGroup {
+		return "", errors.New("regexp group mismatched: " + o.Regexp)
+	}
+	text := strings.TrimSpace(bluemonday.StripTagsPolicy().Sanitize(arr[o.RegexpGroup]))
+	if text == "" {
+		slog.Error("Abstract is empty: " + o.Regexp)
+		return "", errors.New("abstract is empty")
+	}
+	return text, nil
+}
+
 type IEEEProvider struct {
 }
 
@@ -133,20 +196,4 @@ func (U USENIXProvider) ParseAbstract(reader io.Reader) (string, error) {
 		return "", errors.New("usenix abstract is empty")
 	}
 	return abstract, nil
-}
-
-type ACMProvider struct {
-}
-
-func (A ACMProvider) ParseAbstract(reader io.Reader) (string, error) {
-	doc, err := goquery.NewDocumentFromReader(reader)
-	if err != nil {
-		return "", err
-	}
-	text := doc.Find("div#abstracts div[role=paragraph]").Text()
-	if text == "" {
-		slog.Error("ACM Abstract is empty")
-		return "", errors.New("acm abstract is empty")
-	}
-	return text, nil
 }
