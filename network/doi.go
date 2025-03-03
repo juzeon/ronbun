@@ -80,6 +80,8 @@ func getAbstractProvider(sourceHost string) (AbstractProvider, error) {
 		}, nil
 	case "openaccess.thecvf.com":
 		return ConfigurableAbstractProvider{Selector: "div#abstract"}, nil
+	case "openreview.net":
+		return ConfigurableAbstractProvider{Selector: "div.note-content p"}, nil
 	default:
 		return nil, errors.New("cannot find provider for " + sourceHost)
 	}

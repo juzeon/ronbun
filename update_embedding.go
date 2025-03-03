@@ -6,20 +6,11 @@ import (
 	"math"
 	"ronbun/db"
 	"ronbun/network"
-	"ronbun/storage"
 	"ronbun/util"
 )
 
 func UpdateEmbedding() {
-	var embeddingProvider network.EmbeddingProvider
-	switch storage.Config.EmbeddingProvider {
-	case "siliconflow":
-		embeddingProvider = network.SiliconFlowEmbeddingProvider{}
-	case "jina":
-		embeddingProvider = network.JinaEmbeddingProvider{}
-	default:
-		panic("please specify a embedding provider")
-	}
+	embeddingProvider := network.GetEmbeddingProviderByConfig()
 	papers := db.PaperTx.Order("title asc").MustFindMany("abstract!=? and embedding=?", "", "")
 	slog.Info("Papers to update", "count", len(papers))
 	step := 100

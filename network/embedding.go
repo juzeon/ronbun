@@ -8,6 +8,17 @@ import (
 	"time"
 )
 
+func GetEmbeddingProviderByConfig() EmbeddingProvider {
+	switch storage.Config.EmbeddingProvider {
+	case "siliconflow":
+		return SiliconFlowEmbeddingProvider{}
+	case "jina":
+		return JinaEmbeddingProvider{}
+	default:
+		panic("please specify a embedding provider")
+	}
+}
+
 type EmbeddingProvider interface {
 	GetEmbedding(documents []string) ([][]float64, error)
 }

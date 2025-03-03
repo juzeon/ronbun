@@ -17,6 +17,7 @@ import (
 )
 
 func SearchVec() {
+	embeddingProvider := network.GetEmbeddingProviderByConfig()
 	conferenceRankings := util.PromptSelectConferenceRankings()
 	conferences := ccf.GetConferencesBySubRanking(ccf.GetConferenceSubs(), conferenceRankings)
 	file := storage.WriteTmpFile("search-vec-input.txt", nil)
@@ -25,7 +26,7 @@ func SearchVec() {
 	v := lo.Must(os.ReadFile(file))
 	slog.Info("Getting the embedding of the query...")
 	queryDocText := string(v)
-	arr := lo.Must(network.GetJinaEmbedding([]string{queryDocText}))
+	arr := lo.Must(embeddingProvider.GetEmbedding([]string{queryDocText}))
 	query := arr[0]
 	slog.Info("Fetching papers from the database...")
 	papers := db.PaperTx.Select("id,embedding").MustFindMany("embedding!=? and conference in ?",
